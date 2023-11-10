@@ -130,9 +130,9 @@ class Blockchain:
         last_block = self.last_block
 
         new_block = Block(index=last_block.index + 1,
-                          transactions=self.unconfirmed_transactions,
-                          timestamp=time.time(),
-                          previous_hash=last_block.hash)
+                        transactions=self.unconfirmed_transactions,
+                        timestamp=time.time(),
+                        previous_hash=last_block.hash)
 
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)

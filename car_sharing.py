@@ -1,18 +1,19 @@
 from contract import SmartContract, BookingDetails
 
 class Owner:
-    def __init__(self, balance):
-        self.contract = SmartContract
-        self.balance = balance
-
-    def add_car_to_rent(self, day_price, car_info):
-        car = Car(car_info)
-        self.contract.add_booking_details(BookingDetails(car, day_price))
-
-    def deploy(self, ether, blockchain):
-        self.balance -= ether
+    def __init__(self):
         self.contract = SmartContract()
-        self.contract.owner_deposit(ether)
+        self.balance = float(input("Enter initial balance for Owner: "))
+
+    def add_car_to_rent(self):
+        car_info = input("Enter the car you want to add: ")
+        day_price = float(input("Enter the daily rental price for the car: "))
+        self.contract.add_booking_details(BookingDetails(Car(car_info), day_price))
+
+    def deploy(self, blockchain):
+        eth = float(input("Enter the amount of Ether to deploy: "))
+        self.balance -= eth
+        self.contract.owner_deposit(eth)
         blockchain.add_new_transaction(self.contract)
 
     def withdraw_earnings(self):
@@ -25,18 +26,21 @@ class Owner:
         blockchain.mine()
 
 class Customer:
-    def __init__(self, balance):
-        self.balance = balance
-        self.contract = SmartContract
+    def __init__(self):
+        self.contract = SmartContract()
+        self.balance = float(input("Enter initial balance for Customer: "))
 
-    def request_book(self, ether, blockchain):
+    def request_book(self, blockchain):
+        eth = float(input("Enter the amount of Ether for booking: "))
         self.contract = blockchain.get_unconfirmed_transactions()[0]
-        self.contract.client_deposit(ether)
-        self.balance -= ether
+        self.contract.client_deposit(eth)
+        self.balance -= eth
 
-    def pass_number_of_days(self, days_no):
-        self.contract.get_booking_details().request(days_no)
-
+    def pass_number_of_days(self):
+        days_no = int(input("Enter the number of days for rental: "))
+        booking_details = self.contract.get_booking_details()
+        booking_details.request(days_no)
+        
     def retrieve_balance(self):
         self.balance += self.contract.retrieve_balance()
 
@@ -48,14 +52,13 @@ class Customer:
 
 
 class Car:
-    def __init__(self, car_info, **kwargs):
+    def __init__(self, car_info):
         self.car_info = car_info
-        self.additional = kwargs
         self.is_rented = False
         self.allowed_to_use = False
 
     def access(self):
-        print("Car have been accessed")
+        print("Car has been accessed")
         self.is_rented = True
 
     def end_rental(self):
@@ -63,8 +66,3 @@ class Car:
 
     def allow_to_use(self):
         self.allowed_to_use = True
-
-
-
-
-
