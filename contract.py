@@ -8,7 +8,7 @@ class SmartContract:
         SmartContract.idCounter += 1
         self.client_balance = 0
         self.owner_balance = 0
-        self.booking_details = BookingDetails
+        self.booking_details_list = []
 
     def retrieve_balance(self):
         return self.client_balance 
@@ -22,22 +22,23 @@ class SmartContract:
     def owner_deposit(self, ether):
         self.owner_balance += ether
 
-    def allow_car_usage(self):
-        self.booking_details.get_car().allow_to_use()
+    def allow_car_usage(self, booking_index):
+        self.booking_details_list[booking_index].get_car().allow_to_use()
 
     def add_booking_details(self, booking_details):
-        self.booking_details = booking_details
+        self.booking_details_list.append(booking_details)
 
-    def get_booking_details(self):
-        return self.booking_details
+    def get_booking_details(self, booking_index):
+        return self.booking_details_list[booking_index]
 
-    def end_car_rental(self):
-        self.booking_details.get_car().end_rental()
-        self.client_balance -= self.booking_details.get_summed_cost()
-        self.owner_balance += self.booking_details.get_summed_cost()
-    
-    def get_car(self):
-        return self.booking_details.get_car()
+    def end_car_rental(self, booking_index):
+        booking = self.booking_details_list[booking_index]
+        booking.get_car().end_rental()
+        self.client_balance -= booking.get_summed_cost()
+        self.owner_balance += booking.get_summed_cost()
+
+    def get_car(self, booking_index):
+        return self.booking_details_list[booking_index].get_car()
 
 
 class BookingDetails:
@@ -55,5 +56,3 @@ class BookingDetails:
 
     def get_car(self):
         return self.car
-
-

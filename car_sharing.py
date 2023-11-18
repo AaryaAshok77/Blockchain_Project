@@ -4,17 +4,40 @@ class Owner:
     def __init__(self):
         self.contract = SmartContract()
         self.balance = float(input("Enter initial balance for Owner: "))
+        self.cars = {}
 
     def add_car_to_rent(self):
         car_info = input("Enter the car you want to add: ")
         day_price = float(input("Enter the daily rental price for the car: "))
-        self.contract.add_booking_details(BookingDetails(Car(car_info), day_price))
+        while True:
+            car_id = input("Enter a unique ID for the car: ")
+            if car_id in self.cars:
+                print("Car with the same ID already exists. Please choose a different ID.")
+                continue
+            break
+
+        new_car = Car(car_info, day_price)
+        self.cars[car_id] = {
+            'car': new_car,
+            'day_price': day_price,
+            'booking_details': None
+        }
+        print(f"Added  {car_info}: {day_price}")
+
+        self.contract.add_booking_details(BookingDetails(new_car, day_price))
 
     def deploy(self, blockchain):
-        eth = float(input("Enter the amount of Ether to deploy: "))
-        self.balance -= eth
-        self.contract.owner_deposit(eth)
-        blockchain.add_new_transaction(self.contract)
+        while True:
+            eth = float(input("Enter the amount of Ether to deploy: "))
+            if self.balance-eth <=0:
+                user_input = input("Insufficient Balance!!\n**Press Enter to try again**")
+                if user_input:
+                    break
+                continue
+            self.balance -= eth
+            self.contract.owner_deposit(eth)
+            blockchain.add_new_transaction(self.contract)
+            print(f"{eth} Ether deployed")
 
     def withdraw_earnings(self):
         self.balance += self.contract.withdraw_earnings()
@@ -40,7 +63,7 @@ class Customer:
         days_no = int(input("Enter the number of days for rental: "))
         booking_details = self.contract.get_booking_details()
         booking_details.request(days_no)
-        
+
     def retrieve_balance(self):
         self.balance += self.contract.retrieve_balance()
 
@@ -52,8 +75,9 @@ class Customer:
 
 
 class Car:
-    def __init__(self, car_info):
+    def __init__(self, car_info, day_price):
         self.car_info = car_info
+        self.day_price = day_price
         self.is_rented = False
         self.allowed_to_use = False
 
